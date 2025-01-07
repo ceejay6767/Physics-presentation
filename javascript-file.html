@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound Wave Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: linear-gradient(to bottom, /*#f9f7ff, #dfe9f3*/ #fcef3f, #ffeeff);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      font-weight: 600;
+      color: #4b5d67;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .description {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+      color: #61677c;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .chart-box {
+      background: #ffffff;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .amp{
+        color: #f28e2c;
+    }
+
+    .nor{
+        color: #4b79a1;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: auto;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #888;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Physics Project: Enhancing Classroom Acoustics</h1>
+  <p class="description">
+    Problem: Students sitting far in a classroom can't properly hear the teacher during lessons. This is due to sound waves dissipating before reaching them.<br><br>
+    Solution: Installing sonorous plates to bounce sound waves effectively, ensuring that sound reaches all students in the classroom.
+  </p>
+  <div class="chart-container">
+    <div class="chart-box">
+      <canvas id="chartWithoutPlates" class="cwp"></canvas>
+    </div>
+    <div class="chart-box">
+      <canvas id="chartWithPlates"></canvas>
+    </div>
+  </div>
+  <p class="description">The <span class="amp">amplified</span> sound waves vary differently from the <span class="nor">normal</span> waves in such a way that their y-position on the y-axis is more convergent to the origin(0) than the <span class="nor">normal</span> waves</p>
+  <p class="description">This is because sound waves with higher dissipation have higher y-values on a graph plane.This shows that the amplified sound waves have a stable frequency to travel furthur distances before the get dissipated.</p>
+  <footer>Made with ❤️ for better classroom acoustics-By Group 2</footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Generate data for the first visualization (Without Plates)
+    function generateDataWithoutPlates() {
+      const x = [];
+      const y = [];
+      for (let i = 0; i <= 10; i += 0.05) {
+        x.push(i.toFixed(2));
+        y.push(Math.sin(2 * Math.PI * 0.5 * i) * Math.exp(-0.1 * i));
+      }
+      return { x, y };
+    }
+
+    // Generate data for the second visualization (With Plates)
+    function generateDataWithPlates() {
+      const x = [];
+      const yOriginal = [];
+      const yAmplified = [];
+      for (let i = 0; i <= 10; i += 0.05) {
+        x.push(i.toFixed(2));
+        const y1 = Math.sin(2 * Math.PI * 0.5 * i) * Math.exp(-0.1 * i);
+        const yReflected = Math.sin(2 * Math.PI * 0.5 * (10 - i)) * Math.exp(-0.1 * (10 - i));
+        yOriginal.push(y1);
+        yAmplified.push(y1 + yReflected);
+      }
+      return { x, yOriginal, yAmplified };
+    }
+
+    // Create Chart.js visualizations
+    function createChart(context, labels, datasets, title) {
+      new Chart(context, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: datasets.map((data, index) => ({
+            label: data.label,
+            data: data.values,
+            borderColor: data.color,
+            borderWidth: 2,
+            fill: false,
+            tension: 0.3
+          }))
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: title,
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Distance (m)'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Amplitude'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Data for "Without Plates" chart
+    const dataWithoutPlates = generateDataWithoutPlates();
+    createChart(
+      document.getElementById('chartWithoutPlates'),
+      dataWithoutPlates.x,
+      [
+        { label: 'Dissipating Sound Waves', values: dataWithoutPlates.y, color: '#4b79a1' }
+      ],
+      'Sound Waves Without Sonorous Plates'
+    );
+
+    // Data for "With Plates" chart
+    const dataWithPlates = generateDataWithPlates();
+    createChart(
+      document.getElementById('chartWithPlates'),
+      dataWithPlates.x,
+      [
+        { label: 'Original Sound Waves', values: dataWithPlates.yOriginal, color: '#4b79a1' },
+        { label: 'Amplified Sound Waves', values: dataWithPlates.yAmplified, color: '#f28e2c' }
+      ],
+      'Sound Waves with Sonorous Plates'
+    );
+  </script>
+</body>
+</html>
